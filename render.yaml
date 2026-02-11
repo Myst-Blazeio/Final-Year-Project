@@ -1,4 +1,3 @@
-
 services:
   # Backend Service
   - type: web
@@ -9,35 +8,10 @@ services:
     startCommand: cd backend && gunicorn app:app
     envVars:
       - key: PYTHON_VERSION
-        value: 3.14.0
+        value: 3.11.0
       - key: SECRET_KEY
         generateValue: true
       - key: JWT_SECRET_KEY
         generateValue: true
       - key: MONGO_URI
-        fromGroup: fir-settings
-        key: MONGO_URI
-
-  # Frontend Static Site
-  - type: static
-    name: fir-automation-frontend
-    env: static
-    plan: free
-    buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/dist
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    envVars:
-      - key: VITE_API_URL
-        fromService:
-          type: web
-          name: fir-automation-backend
-          property: url
-
-envVarGroups:
-  - name: fir-settings
-    envVars:
-      - key: MONGO_URI
-        value: mongodb+srv://<username>:<password>@cluster0.mongodb.net/fir_db?retryWrites=true&w=majority
+        sync: false # User must set this in dashboard

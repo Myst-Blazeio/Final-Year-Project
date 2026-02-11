@@ -64,3 +64,11 @@ Thumbs.db
 backend/assets/*.pkl
 backend/verify_output.txt
 backend/celerybeat-schedule
+
+# Documentation and Research
+docs/
+research/
+*.log
+test_output.txt
+.firebaserc
+firebase.json

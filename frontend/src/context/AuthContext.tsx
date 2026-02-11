@@ -1,13 +1,23 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
+import { User } from "../types";
 
-const AuthContext = createContext(null);
+interface AuthContextType {
+  user: User | null;
+  token: string | null;
+  role: string | null;
+  loading: boolean;
+  login: (userData: User, authToken: string, userRole: string) => void;
+  logout: () => void;
+}
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-  const [role, setRole] = useState(null);
-  const [loading, setLoading] = useState(true);
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,7 +34,7 @@ export const AuthProvider = ({ children }) => {
             headers: { Authorization: `Bearer ${storedToken}` },
           });
           if (response.ok) {
-            const userData = await response.json();
+            const userData: User = await response.json();
             setUser(userData);
             // Update session storage with fresh data
             sessionStorage.setItem("user", JSON.stringify(userData));
@@ -44,7 +54,7 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
-  const login = (userData, authToken, userRole) => {
+  const login = (userData: User, authToken: string, userRole: string) => {
     // Save to sessionStorage (clears on tab close)
     sessionStorage.setItem("token", authToken);
     sessionStorage.setItem("user", JSON.stringify(userData));
@@ -56,19 +66,17 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    const currentRole = role || sessionStorage.getItem("role"); // backup if state is lost but storage exists
+    // const currentRole = role || sessionStorage.getItem("role"); 
     sessionStorage.clear();
     setToken(null);
     setUser(null);
     setRole(null);
 
-    if (currentRole === "citizen") {
-      navigate("/citizen");
-    } else if (currentRole === "police") {
-      navigate("/police");
-    } else {
-      navigate("/");
-    }
+    // Redirect to Flask backend for police logout or stays here for citizen?
+    // Actually, police logout is now handled by backend routes, but if we are here, we might need to redirect.
+    // For now, simple client side clear is fine.
+    
+    navigate("/");
   };
 
   return (
@@ -78,4 +86,10 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};

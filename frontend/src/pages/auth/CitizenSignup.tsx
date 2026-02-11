@@ -17,11 +17,11 @@ const CitizenSignup = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSignup = async (e) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -42,7 +42,7 @@ const CitizenSignup = () => {
       });
 
       navigate("/citizen/login");
-    } catch (err) {
+    } catch (err: any) {
       setError(err.response?.data?.error || "Registration failed");
     }
   };

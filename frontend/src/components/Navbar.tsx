@@ -1,21 +1,15 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 import { Shield } from "lucide-react";
 
-const Navbar = () => {
+const Navbar: React.FC = () => {
   const { user, role, logout } = useAuth();
-  const location = useLocation();
-  const path = location.pathname;
 
-  const isCitizenPage =
-    path.startsWith("/citizen") || path.includes("/dashboard/citizen");
-  const isPolicePage =
-    path.startsWith("/police") ||
-    path.includes("/dashboard/police") ||
-    path.includes("/archives");
-
+  // Police logic is largely irrelevant now as police have their own portal, 
+  // but keeping basic checks if we ever link back or share this nav.
+  // Actually, Police Portal uses backend templates, so this Navbar is ONLY for Citizen/Public.
+  
   return (
     <nav className="bg-primary text-primary-foreground p-4 shadow-md select-none">
       <div className="container mx-auto flex justify-between items-center">

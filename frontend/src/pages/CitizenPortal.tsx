@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import axios from "axios";
@@ -7,32 +7,25 @@ import { generateFIRPDF } from "../utils/pdfGenerator";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Bell,
-  Check,
   X,
   Search as SearchIcon,
   ChevronDown,
   AlertCircle,
-  LogOut,
-  User,
+  User as UserIcon,
   Phone,
   Mail,
   FileText,
   Download,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { Notification, Station, FIR } from "../types";
 
 const CitizenPortal = () => {
   const [activeTab, setActiveTab] = useState("services");
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifs, setShowNotifs] = useState(false);
-  const navigate = useNavigate();
   const { username } = useParams();
-  const { token, role, user, logout } = useAuth();
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
+  const { token, role } = useAuth();
 
   useEffect(() => {
     if (token && role === "citizen") {
@@ -53,7 +46,7 @@ const CitizenPortal = () => {
     }
   };
 
-  const markRead = async (id) => {
+  const markRead = async (id: string) => {
     try {
       await axios.put(
         `/api/fir/notifications/${id}/read`,
@@ -192,7 +185,7 @@ const CitizenPortal = () => {
   );
 };
 
-const ServicesTab = ({ setActiveTab }) => {
+const ServicesTab: React.FC<{ setActiveTab: (tab: string) => void }> = ({ setActiveTab }) => {
   const services = [
     {
       title: "File an FIR",
@@ -224,7 +217,7 @@ const ServicesTab = ({ setActiveTab }) => {
   );
 };
 
-const NewFIRTab = ({ onSuccess }) => {
+const NewFIRTab: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
   const [formData, setFormData] = useState({
     text: "",
     language: "en",
@@ -234,7 +227,7 @@ const NewFIRTab = ({ onSuccess }) => {
     station_id: "",
   });
   const [loading, setLoading] = useState(false);
-  const [stations, setStations] = useState([]);
+  const [stations, setStations] = useState<Station[]>([]);
   const [msg, setMsg] = useState("");
   const [dateWarning, setDateWarning] = useState("");
   const { token } = useAuth();
@@ -252,7 +245,7 @@ const NewFIRTab = ({ onSuccess }) => {
     fetchStations();
   }, []);
 
-  const validateDateTime = (date, time) => {
+  const validateDateTime = (date: string, time: string) => {
     if (!date || !time) return;
     const selected = new Date(`${date}T${time}`);
     const now = new Date();
@@ -263,17 +256,17 @@ const NewFIRTab = ({ onSuccess }) => {
     }
   };
 
-  const handleDateChange = (e) => {
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, incident_date: e.target.value });
     validateDateTime(e.target.value, formData.incident_time);
   };
 
-  const handleTimeChange = (e) => {
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, incident_time: e.target.value });
     validateDateTime(formData.incident_date, e.target.value);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.station_id) {
       setMsg("Please select a Police Station.");
@@ -297,9 +290,7 @@ const NewFIRTab = ({ onSuccess }) => {
 
   return (
     <div className="max-w-2xl mx-auto bg-card p-8 rounded-lg border border-border official-card">
-      <h2 className="text-2xl font-bold mb-6 text-violet-900">
-        File a New FIR
-      </h2>
+      <h2 className="text-2xl font-bold mb-6 text-blue-900">File a New FIR</h2>
       {msg && (
         <div
           className={`p-3 rounded mb-4 ${msg.includes("Success") ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
@@ -404,7 +395,7 @@ const NewFIRTab = ({ onSuccess }) => {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 bg-violet-700 text-white font-bold rounded hover:bg-violet-800 transition"
+          className="w-full py-3 bg-primary text-primary-foreground font-bold rounded hover:bg-primary/90 transition"
         >
           {loading ? "Submitting..." : "Submit Grievance"}
         </button>
@@ -413,7 +404,13 @@ const NewFIRTab = ({ onSuccess }) => {
   );
 };
 
-const StationDropdown = ({ stations, selected, onSelect }) => {
+interface StationDropdownProps {
+  stations: Station[];
+  selected: string;
+  onSelect: (id: string) => void;
+}
+
+const StationDropdown: React.FC<StationDropdownProps> = ({ stations, selected, onSelect }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -466,7 +463,7 @@ const StationDropdown = ({ stations, selected, onSelect }) => {
                     setIsOpen(false);
                     setSearch("");
                   }}
-                  className="p-2 hover:bg-violet-50 cursor-pointer text-sm border-b last:border-b-0"
+                  className="p-2 hover:bg-blue-50 cursor-pointer text-sm border-b last:border-b-0"
                 >
                   <span className="font-semibold text-gray-700">
                     {s.station_name}
@@ -487,9 +484,9 @@ const StationDropdown = ({ stations, selected, onSelect }) => {
 };
 
 const HistoryTab = () => {
-  const [firs, setFirs] = useState([]);
+  const [firs, setFirs] = useState<FIR[]>([]);
   const [loading, setLoading] = useState(true);
-  const [stations, setStations] = useState([]);
+  const [stations, setStations] = useState<Station[]>([]);
   const { token } = useAuth();
 
   useEffect(() => {
@@ -592,8 +589,8 @@ const ProfileTab = () => {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center gap-4 mb-6">
-        <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center text-violet-700">
-          <User size={32} />
+        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-700">
+          <UserIcon size={32} />
         </div>
         <div>
           <h2 className="text-2xl font-bold">My Profile</h2>
@@ -604,7 +601,7 @@ const ProfileTab = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-card border rounded-lg p-4 flex gap-3 items-start official-card">
           <div className="mt-1 text-muted-foreground">
-            <User size={20} />
+            <UserIcon size={20} />
           </div>
           <div>
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -618,7 +615,7 @@ const ProfileTab = () => {
 
         <div className="bg-card border rounded-lg p-4 flex gap-3 items-start official-card">
           <div className="mt-1 text-muted-foreground">
-            <User size={20} />
+            <UserIcon size={20} />
           </div>
           <div>
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">

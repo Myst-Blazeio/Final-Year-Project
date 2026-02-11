@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - {{ user.full_name }}{% endblock %}
+
+{% block content %}
+<div class="flex h-screen bg-gray-100">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white shadow-md flex flex-col">
+        <div class="p-6 border-b">
+            <h2 class="text-2xl font-bold text-blue-600">Police Portal</h2>
+            <p class="text-sm text-gray-500 mt-1">Station ID: {{ user.station_id }}</p>
+        </div>
+        <nav class="flex-1 p-4 space-y-2">
+            <a href="#" class="flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-700 rounded-lg">
+                <i data-lucide="layout-dashboard"></i>
+                <span class="font-medium">Dashboard</span>
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg">
+                <i data-lucide="file-text"></i>
+                <span class="font-medium">FIR Inbox</span>
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg">
+                <i data-lucide="bar-chart-2"></i>
+                <span class="font-medium">Analytics</span>
+            </a>
+        </nav>
+        <div class="p-4 border-t">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                    <i data-lucide="user"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-gray-900">{{ user.full_name }}</p>
+                    <p class="text-xs text-gray-500">Officer</p>
+                </div>
+            </div>
+            <a href="{{ url_for('police.logout') }}" class="flex items-center gap-2 text-red-600 hover:text-red-700 text-sm font-medium">
+                <i data-lucide="log-out" size="16"></i> Sign Out
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-8">
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
+                <p class="text-gray-500">Welcome back, Officer {{ user.full_name }}</p>
+            </div>
+            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2">
+                <i data-lucide="plus"></i> New Report
+            </button>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- ... stats cards ... -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Pending Reviews</p>
+                        <h3 class="text-3xl font-bold text-gray-900 mt-2">{{ pending_count }}</h3>
+                    </div>
+                    <div class="p-3 bg-red-50 text-red-600 rounded-lg">
+                        <i data-lucide="alert-circle"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- ... other cards ... -->
+             <div class="md:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <h3 class="font-bold text-gray-900 mb-4">Crime Forecast</h3>
+                <canvas id="crimeChart" height="100"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent FIRs -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="font-bold text-gray-900">Recent FIRs</h3>
+                <a href="#" class="text-sm text-blue-600 hover:text-blue-700 font-medium">View All</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 text-gray-500 text-xs uppercase">
+                        <tr>
+                            <th class="px-6 py-4 font-medium">FIR ID</th>
+                            <th class="px-6 py-4 font-medium">Complainant</th>
+                            <th class="px-6 py-4 font-medium">Date</th>
+                            <th class="px-6 py-4 font-medium">Status</th>
+                            <th class="px-6 py-4 font-medium">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for fir in firs %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 font-medium text-gray-900">#{{ fir._id }}</td>
+                            <td class="px-6 py-4">{{ fir.complainant_name }}</td>
+                            <td class="px-6 py-4 text-gray-500">{{ fir.created_at.strftime('%Y-%m-%d') if fir.created_at else 'N/A' }}</td>
+                            <td class="px-6 py-4">
+                                <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+                                    {{ fir.status }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <button onclick="openReviewModal('{{ fir._id }}')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">Review</button>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                                No recent FIRs found.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/police_dashboard.js') }}"></script>
+{% endblock %}

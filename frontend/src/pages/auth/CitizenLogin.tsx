@@ -12,7 +12,7 @@ const CitizenLogin = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     try {
@@ -30,7 +30,7 @@ const CitizenLogin = () => {
       login(userData, token, role);
 
       navigate(`/dashboard/citizen/${userData.username}`, { replace: true });
-    } catch (err) {
+    } catch (err: any) {
       setError(err.response?.data?.error || "Login failed");
     }
   };

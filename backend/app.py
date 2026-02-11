@@ -1,5 +1,5 @@
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, redirect, url_for
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
@@ -43,6 +43,19 @@ from routes.intelligence_routes import intelligence_bp
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(fir_bp, url_prefix='/api/fir')
 app.register_blueprint(intelligence_bp, url_prefix='/api/intelligence')
+
+from routes.police_routes import police_bp
+app.register_blueprint(police_bp, url_prefix='/police')
+
+# JWT Config for Cookies
+app.config['JWT_TOKEN_LOCATION'] = ['headers', 'cookies']
+app.config['JWT_COOKIE_SECURE'] = False # Set to True in production
+app.config['JWT_COOKIE_CSRF_PROTECT'] = False # Disable for simplicity in this migration, enable in prod
+
+
+@app.route('/', methods=['GET'])
+def index():
+    return redirect(url_for('police.login'))
 
 @app.route('/api/health', methods=['GET'])
 def health_check():

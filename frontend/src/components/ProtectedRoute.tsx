@@ -2,29 +2,29 @@ import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-const ProtectedRoute = ({ allowedRoles }) => {
+interface ProtectedRouteProps {
+  allowedRoles?: string[];
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
   const { token, role } = useAuth();
 
   if (!token) {
     return <Navigate to="/" replace />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(role)) {
+  if (allowedRoles && role && !allowedRoles.includes(role)) {
     // Redirect to their appropriate dashboard if they try to access wrong route
-    if (role === "citizen")
+    if (role === "citizen") {
+      const username = useAuth().user?.username || "citizen"; 
       return (
         <Navigate
-          to={`/dashboard/citizen/${useAuth().user?.username}`}
+          to={`/dashboard/citizen/${username}`}
           replace
         />
       );
-    if (role === "police")
-      return (
-        <Navigate
-          to={`/dashboard/police/${useAuth().user?.username}`}
-          replace
-        />
-      );
+    }
+    // Default fallback
     return <Navigate to="/" replace />;
   }
 
