@@ -61,7 +61,6 @@ frontend/.vercel/
 Thumbs.db
 
 # Project Specific
-backend/assets/*.pkl
 backend/verify_output.txt
 backend/celerybeat-schedule
 
