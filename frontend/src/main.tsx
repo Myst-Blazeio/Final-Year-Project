@@ -1,3 +1,8 @@
+import { setupMockApi } from "./utils/axiosMockInterceptor";
+
+// Enable mock API for standalone mode
+setupMockApi();
+
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
