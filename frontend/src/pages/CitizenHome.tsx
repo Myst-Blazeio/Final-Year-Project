@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import { FileText, Search, Info } from "lucide-react";
+import { FileText, Search, Info, ShieldAlert, Ambulance, HeartHandshake, Phone } from "lucide-react";
 
 const CitizenHome = () => {
   return (
@@ -62,6 +62,41 @@ const CitizenHome = () => {
           </div>
         </div>
       </section>
+
+      {/* Emergency Help & Contacts Section */}
+      <section className="py-12 px-4 bg-red-50">
+        <div className="container mx-auto max-w-6xl">
+          <h2 className="text-2xl font-bold text-red-800 mb-8 border-l-4 border-red-600 pl-4">
+            Emergency Help & Contacts
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <ContactCard
+              icon={<ShieldAlert className="w-8 h-8 text-red-600" />}
+              title="Police"
+              number="100"
+              description="Immediate Police Assistance"
+            />
+            <ContactCard
+              icon={<Ambulance className="w-8 h-8 text-red-600" />}
+              title="Ambulance"
+              number="102"
+              description="Medical Emergency Services"
+            />
+            <ContactCard
+              icon={<HeartHandshake className="w-8 h-8 text-red-600" />}
+              title="Women's Helpline"
+              number="1091"
+              description="Support & Safety for Women"
+            />
+            <ContactCard
+              icon={<Phone className="w-8 h-8 text-red-600" />}
+              title="Cybercrime"
+              number="1930"
+              description="Report Cyber Fraud & Crimes"
+            />
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
@@ -79,6 +114,24 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ icon, title, description }) =
     </div>
     <h3 className="text-lg font-bold mb-2 text-gray-900">{title}</h3>
     <p className="text-sm text-gray-600 leading-relaxed">{description}</p>
+  </div>
+);
+
+interface ContactCardProps {
+  icon: React.ReactNode;
+  title: string;
+  number: string;
+  description: string;
+}
+
+const ContactCard: React.FC<ContactCardProps> = ({ icon, title, number, description }) => (
+  <div className="bg-white p-6 border border-red-100 rounded hover:border-red-300 hover:shadow-md transition cursor-default text-center">
+    <div className="mb-4 bg-red-50 inline-block p-3 rounded-full border border-red-100">
+      {icon}
+    </div>
+    <h3 className="text-lg font-bold mb-1 text-gray-900">{title}</h3>
+    <p className="text-2xl font-bold text-red-600 mb-2">{number}</p>
+    <p className="text-sm text-gray-600">{description}</p>
   </div>
 );
 
